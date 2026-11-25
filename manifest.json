@@ -1,0 +1,19 @@
+{
+  "name": "NEET Quest — Gamified Syllabus Tracker",
+  "short_name": "NEET Quest",
+  "description": "ADHD-friendly, gamified 11th NEET, 12th CBSE NCERT & 12th NEET syllabus tracker with mastery XP, haptics, and cloud backup.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#06060a",
+  "theme_color": "#06060a",
+  "icons": [
+    {
+      "src": "./assets/rank_emblem.jpg",
+      "sizes": "320x320",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
