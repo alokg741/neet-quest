@@ -3520,10 +3520,22 @@
       });
       document.getElementById('btn-copy-origin').addEventListener('click', async () => {
         SFX.check(2);
+        const orig = (window.location.origin && window.location.origin !== 'null') ? window.location.origin : 'https://alokg741.github.io';
         try {
-          if (navigator.clipboard) const orig = window.location.origin; await navigator.clipboard.writeText(orig);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(orig);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = orig;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+          }
           showToast('Origin Copied', `Copied ${orig} to clipboard.`, 'success', 'copy');
-        } catch (e) {}
+        } catch (e) {
+          showToast('Origin', orig, 'default', 'copy');
+        }
       });
 
       // Cloud Providers & Gist Sync
