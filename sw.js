@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neet-quest-v2';
+const CACHE_NAME = 'neet-quest-v3';
 const ASSETS = [
   './',
   './index.html',

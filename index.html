@@ -770,14 +770,26 @@
           </div>
         </div>
 
-                <!-- TAB: CHAPTER TILES CUSTOMIZER -->
+                <!-- TAB: CHAPTER TILES CUSTOMIZER & 12 PRESETS -->
         <div id="stab-tiles" class="hidden space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-xs font-extrabold">Customize Chapter Tiles</div>
-              <div class="text-[11px] text-zinc-500">Reorder, hide, remove, or add custom tiles (A, B, C, Cards, DPP, etc.)</div>
+          <!-- 12 Study Tile Presets -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs font-extrabold">Tile Presets (12 Modes)</div>
+                <div class="text-[11px] text-zinc-500">Switch study workflow instantly — then customize any tile below</div>
+              </div>
+              <span id="active-preset-pill" class="text-[10px] font-bold px-2 py-0.5 rounded-md accent-soft-bg accent-text border accent-border">Aakash Preset</span>
             </div>
-            <button id="btn-reset-tiles" class="spring-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.07] dark:hover:bg-white/[0.12]">Reset Default</button>
+            <div id="tile-presets-grid" class="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-0.5"></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-white/[0.07]">
+            <div>
+              <div class="text-xs font-extrabold">Customize Active Tiles</div>
+              <div class="text-[11px] text-zinc-500">Reorder, toggle, remove, or add your own tiles</div>
+            </div>
+            <button id="btn-reset-tiles" class="spring-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 hover:bg-zinc-200 dark:bg-white/[0.07] dark:hover:bg-white/[0.12]">Reset Aakash</button>
           </div>
 
           <!-- Ordered Tile List -->
@@ -1254,14 +1266,145 @@
       }
     };
 
-    const DEFAULT_CORE_TILES = [
-      { id: 'overview', label: 'Overview', xp: 20, icon: 'eye', group: 'core', enabled: true, builtIn: true },
-      { id: 'secA', label: 'A', fullLabel: 'Questions: Section A', xp: 25, icon: 'circle-dot', group: 'questions', enabled: true, builtIn: true },
-      { id: 'secB', label: 'B', fullLabel: 'Questions: Section B', xp: 30, icon: 'circle-dot', group: 'questions', enabled: true, builtIn: true },
-      { id: 'secC', label: 'C', fullLabel: 'Questions: Section C', xp: 35, icon: 'flame', group: 'questions', enabled: true, builtIn: true },
-      { id: 'notes', label: 'Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true, builtIn: true },
-      { id: 'flashcards', label: 'Cards', fullLabel: 'Flashcards', xp: 25, icon: 'layers', group: 'core', enabled: true, builtIn: true }
+    const TILE_PRESETS = [
+      {
+        id: 'aakash', name: 'Aakash Preset', desc: 'Overview • Q[A,B,C] • Notes • Cards',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Overview', xp: 20, icon: 'eye', group: 'core', enabled: true, builtIn: true },
+          { id: 'secA', label: 'A', fullLabel: 'Questions: Section A', xp: 25, icon: 'circle-dot', group: 'questions', enabled: true, builtIn: true },
+          { id: 'secB', label: 'B', fullLabel: 'Questions: Section B', xp: 30, icon: 'circle-dot', group: 'questions', enabled: true, builtIn: true },
+          { id: 'secC', label: 'C', fullLabel: 'Questions: Section C', xp: 35, icon: 'flame', group: 'questions', enabled: true, builtIn: true },
+          { id: 'notes', label: 'Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true, builtIn: true },
+          { id: 'flashcards', label: 'Cards', fullLabel: 'Flashcards', xp: 25, icon: 'layers', group: 'core', enabled: true, builtIn: true }
+        ]
+      },
+      {
+        id: 'classic', name: 'Classic All-Rounder', desc: 'Lecture • NCERT • Notes • Cards • PYQ • Test',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'lecture', label: 'Lecture', xp: 20, icon: 'play-circle', group: 'core', enabled: true },
+          { id: 'ncert', label: 'NCERT', xp: 25, icon: 'book-open', group: 'core', enabled: true },
+          { id: 'notes', label: 'Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true },
+          { id: 'flashcards', label: 'Cards', fullLabel: 'Flashcards', xp: 25, icon: 'layers', group: 'core', enabled: true },
+          { id: 'pyq', label: 'PYQs', xp: 30, icon: 'crosshair', group: 'questions', enabled: true },
+          { id: 'test', label: 'Test', xp: 35, icon: 'award', group: 'questions', enabled: true }
+        ]
+      },
+      {
+        id: 'allen', name: 'Allen Module', desc: 'Lecture • Q[Ex1,Ex2,Ex3] • NCERT • Notes',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'lecture', label: 'Lecture', xp: 20, icon: 'play-circle', group: 'core', enabled: true },
+          { id: 'ex1', label: 'Ex1', fullLabel: 'Exercise 1', xp: 25, icon: 'circle-dot', group: 'questions', enabled: true },
+          { id: 'ex2', label: 'Ex2', fullLabel: 'Exercise 2', xp: 30, icon: 'circle-dot', group: 'questions', enabled: true },
+          { id: 'ex3', label: 'Ex3', fullLabel: 'Exercise 3 (PYQs)', xp: 35, icon: 'flame', group: 'questions', enabled: true },
+          { id: 'ncert', label: 'NCERT', xp: 25, icon: 'book-open', group: 'core', enabled: true },
+          { id: 'notes', label: 'Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'pw', name: 'PW / Batch Mode', desc: 'Lecture • Q[DPP,Mod,PYQ] • Short Notes • Test',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'lecture', label: 'Lecture', xp: 20, icon: 'play-circle', group: 'core', enabled: true },
+          { id: 'dpp', label: 'DPP', fullLabel: 'Daily Practice Paper', xp: 25, icon: 'zap', group: 'questions', enabled: true },
+          { id: 'mod', label: 'Mod', fullLabel: 'Batch Module', xp: 30, icon: 'book-open', group: 'questions', enabled: true },
+          { id: 'pyq', label: 'PYQ', fullLabel: 'Previous Year Qs', xp: 30, icon: 'crosshair', group: 'questions', enabled: true },
+          { id: 'notes', label: 'Short Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true },
+          { id: 'test', label: 'Test', xp: 35, icon: 'target', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'ncert_bio', name: 'NCERT Bio Mastery', desc: 'Read • Highlight • Diagrams • Q[Ex,PYQ] • Cards',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Read', xp: 20, icon: 'book-open', group: 'core', enabled: true },
+          { id: 'highlight', label: 'Highlight', xp: 20, icon: 'sparkles', group: 'core', enabled: true },
+          { id: 'diagrams', label: 'Diagrams', xp: 25, icon: 'image', group: 'core', enabled: true },
+          { id: 'ex', label: 'Ex', fullLabel: 'NCERT Exemplar', xp: 25, icon: 'circle-dot', group: 'questions', enabled: true },
+          { id: 'pyq', label: 'PYQ', fullLabel: 'NEET Bio PYQs', xp: 30, icon: 'flame', group: 'questions', enabled: true },
+          { id: 'flashcards', label: 'Cards', fullLabel: 'Flashcards', xp: 25, icon: 'layers', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'adhd_micro', name: 'ADHD Micro-Wins', desc: 'Start • Q[10Q,25Q] • Notes (Ultra Low-Friction)',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Start', fullLabel: '5-Min Chapter Start', xp: 20, icon: 'zap', group: 'core', enabled: true },
+          { id: 'q10', label: '10Q', fullLabel: 'First 10 Questions', xp: 20, icon: 'circle-dot', group: 'questions', enabled: true },
+          { id: 'q25', label: '25Q', fullLabel: '25 Core Questions', xp: 30, icon: 'flame', group: 'questions', enabled: true },
+          { id: 'notes', label: 'Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'cbse_boards', name: 'CBSE 12th Boards', desc: 'NCERT • Back Ex • Notes • Sample • PYQs',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'ncert', label: 'NCERT', xp: 20, icon: 'book-open', group: 'core', enabled: true },
+          { id: 'backex', label: 'Back Ex', xp: 25, icon: 'check-circle', group: 'questions', enabled: true },
+          { id: 'pyq', label: 'PYQs', xp: 30, icon: 'crosshair', group: 'questions', enabled: true },
+          { id: 'notes', label: 'Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true },
+          { id: 'sample', label: 'Sample', fullLabel: 'CBSE Sample Paper Qs', xp: 30, icon: 'award', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'obsidian_recall', name: 'Obsidian Active Recall', desc: 'Overview • Cloze • Cards • Feynman • Blurt',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Overview', xp: 20, icon: 'eye', group: 'core', enabled: true },
+          { id: 'notes', label: 'Cloze', fullLabel: 'Obsidian Cloze Notes', xp: 25, icon: 'file-text', group: 'core', enabled: true },
+          { id: 'flashcards', label: 'Cards', fullLabel: 'Flashcards', xp: 25, icon: 'layers', group: 'core', enabled: true },
+          { id: 'feynman', label: 'Feynman', xp: 30, icon: 'brain', group: 'questions', enabled: true },
+          { id: 'blurt', label: 'Blurt', xp: 30, icon: 'sparkles', group: 'questions', enabled: true }
+        ]
+      },
+      {
+        id: 'physics_num', name: 'Physics Numericals', desc: 'Concept • Formulas • Q[L1,L2,PYQ] • Errors',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Concept', xp: 20, icon: 'atom', group: 'core', enabled: true },
+          { id: 'formulas', label: 'Formulas', xp: 25, icon: 'sparkles', group: 'core', enabled: true },
+          { id: 'l1', label: 'L1', fullLabel: 'Level 1 Numericals', xp: 25, icon: 'circle-dot', group: 'questions', enabled: true },
+          { id: 'l2', label: 'L2', fullLabel: 'Level 2 Numericals', xp: 30, icon: 'flame', group: 'questions', enabled: true },
+          { id: 'pyq', label: 'PYQ', fullLabel: 'NEET Physics PYQs', xp: 35, icon: 'crosshair', group: 'questions', enabled: true },
+          { id: 'errors', label: 'Errors', xp: 20, icon: 'alert-triangle', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'organic_chem', name: 'Organic Chemistry', desc: 'Mech • Named Rxns • NCERT • Q[Pr,PYQ] • Cards',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Mech', fullLabel: 'Reaction Mechanisms', xp: 20, icon: 'flask-conical', group: 'core', enabled: true },
+          { id: 'rxns', label: 'Rxns', fullLabel: 'Named Reactions Sheet', xp: 25, icon: 'zap', group: 'core', enabled: true },
+          { id: 'ncert', label: 'NCERT', xp: 25, icon: 'book-open', group: 'core', enabled: true },
+          { id: 'prac', label: 'Pr', fullLabel: 'Practice Conversions', xp: 30, icon: 'circle-dot', group: 'questions', enabled: true },
+          { id: 'pyq', label: 'PYQ', fullLabel: 'Organic PYQs', xp: 30, icon: 'crosshair', group: 'questions', enabled: true },
+          { id: 'flashcards', label: 'Cards', fullLabel: 'Reagent Flashcards', xp: 25, icon: 'layers', group: 'core', enabled: true }
+        ]
+      },
+      {
+        id: 'crash_sprint', name: 'Last-Month Sprint', desc: 'One-Shot • Mindmap • Q[PYQ,Mock]',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'One-Shot', xp: 20, icon: 'zap', group: 'core', enabled: true },
+          { id: 'notes', label: 'Mindmap', xp: 25, icon: 'file-text', group: 'core', enabled: true },
+          { id: 'pyq', label: 'PYQ', fullLabel: 'High-Yield PYQs', xp: 30, icon: 'crosshair', group: 'questions', enabled: true },
+          { id: 'mock', label: 'Mock', fullLabel: 'Timed Mock Drill', xp: 35, icon: 'flame', group: 'questions', enabled: true }
+        ]
+      },
+      {
+        id: 'minimal_3', name: 'Minimalist 3-Step', desc: 'Learn • Practice • Test (Zero Clutter)',
+        revLabel: 'Rev', revXp: 40, showRev: true,
+        tiles: [
+          { id: 'overview', label: 'Learn', xp: 25, icon: 'book-open', group: 'core', enabled: true },
+          { id: 'secA', label: 'Practice', xp: 30, icon: 'target', group: 'core', enabled: true },
+          { id: 'test', label: 'Test', xp: 35, icon: 'award', group: 'core', enabled: true }
+        ]
+      }
     ];
+
+    const DEFAULT_CORE_TILES = TILE_PRESETS[0].tiles;
 
     function getActiveTiles() {
       const list = (state && state.tileConfig && Array.isArray(state.tileConfig.coreTiles))
@@ -1401,6 +1544,7 @@
         profile: { name: '', avatar: '' },
         cloud: { ghToken: '', ghGistId: '', gdriveClientId: '', gdriveFileId: '', autoSync: true, lastSync: null },
         tileConfig: {
+          activePreset: 'aakash',
           coreTiles: DEFAULT_CORE_TILES.map(t => ({ ...t })),
           showRev: true,
           revLabel: 'Rev',
@@ -1549,59 +1693,136 @@
       } catch (e) {}
     }
 
-    let audioCtx = null, noiseBuffer = null;
+    let audioCtx = null, noiseBuffer = null, lastAudioTime = -1, audioStuckStrikes = 0;
 
-    function unlockAudio() {
+    function createFreshAudioCtx() {
       try {
-        if (!audioCtx) {
-          const Ctx = window.AudioContext || window.webkitAudioContext;
-          if (Ctx) audioCtx = new Ctx();
+        if (audioCtx && audioCtx.state !== 'closed') {
+          try { audioCtx.close(); } catch (e) {}
         }
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        if (audioCtx && !noiseBuffer) {
-          const len = Math.floor(audioCtx.sampleRate * 0.04);
-          noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
-          const data = noiseBuffer.getChannelData(0);
-          for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (len * 0.25));
-        }
-      } catch (e) {}
-    }
-
-    ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, unlockAudio, { once: true, passive: true }));
-
-    function getAudio() {
-      if (!state.settings.sound) return null;
-      unlockAudio();
-      return audioCtx;
-    }
-
-    function playMechanicalThock(pitch = 160, vol = 0.09) {
-      const ctx = getAudio();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = 'sine'; osc.frequency.setValueAtTime(pitch, now); osc.frequency.exponentialRampToValueAtTime(55, now + 0.045);
-      g.gain.setValueAtTime(vol, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-      osc.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.055);
-      if (noiseBuffer) {
-        const src = ctx.createBufferSource(); src.buffer = noiseBuffer;
-        const filt = ctx.createBiquadFilter(); filt.type = 'bandpass'; filt.frequency.value = 2600;
-        const ng = ctx.createGain(); ng.gain.setValueAtTime(vol * 0.65, now); ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
-        src.connect(filt); filt.connect(ng); ng.connect(ctx.destination); src.start(now);
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        audioCtx = new Ctx();
+        noiseBuffer = null;
+        lastAudioTime = -1;
+        audioStuckStrikes = 0;
+        const len = Math.floor(audioCtx.sampleRate * 0.04);
+        noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (len * 0.25));
+        return audioCtx;
+      } catch (e) {
+        return null;
       }
     }
 
-    function playTone(freq, duration = 0.14, type = 'triangle', gainPeak = 0.12, delay = 0, slideTo = null) {
-      const ctx = getAudio();
+    function kickSilentBuffer(ctx) {
+      try {
+        const silent = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = silent;
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch (e) {}
+    }
+
+    function unlockAudio() {
+      try {
+        if (!audioCtx || audioCtx.state === 'closed') {
+          createFreshAudioCtx();
+        }
+        if (!audioCtx) return null;
+        // Detect iOS zombie/interrupted AudioContext where currentTime stops advancing
+        if (audioCtx.state === 'interrupted') {
+          createFreshAudioCtx();
+        }
+        if (audioCtx.state !== 'running') {
+          audioCtx.resume().catch(() => {});
+          kickSilentBuffer(audioCtx);
+        }
+        return audioCtx;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Persistent listeners (NEVER once:true!) so iOS Safari/PWA always recovers after sleep/tab switch
+    ['touchstart', 'pointerdown', 'click', 'keydown'].forEach(ev => {
+      window.addEventListener(ev, unlockAudio, { passive: true, capture: true });
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        if (audioCtx && audioCtx.state !== 'running') {
+          audioCtx.resume().catch(() => createFreshAudioCtx());
+        }
+      }
+    });
+    window.addEventListener('pageshow', () => {
+      if (audioCtx && audioCtx.state !== 'running') {
+        audioCtx.resume().catch(() => createFreshAudioCtx());
+      }
+    });
+
+    function runWithAudio(fn) {
+      if (!state.settings.sound) return;
+      let ctx = unlockAudio();
       if (!ctx) return;
-      const now = ctx.currentTime + delay;
-      const osc = ctx.createOscillator(); const gain = ctx.createGain();
-      osc.type = type; osc.frequency.setValueAtTime(freq, now);
-      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
-      gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(gainPeak, now + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      osc.connect(gain); gain.connect(ctx.destination); osc.start(now); osc.stop(now + duration + 0.02);
+
+      // Self-heal if iOS froze the audio clock silently
+      if (ctx.state === 'running' && ctx.currentTime === lastAudioTime && lastAudioTime > 0) {
+        audioStuckStrikes += 1;
+        if (audioStuckStrikes >= 2) {
+          ctx = createFreshAudioCtx();
+          if (!ctx) return;
+        }
+      } else {
+        audioStuckStrikes = 0;
+      }
+      lastAudioTime = ctx.currentTime;
+
+      if (ctx.state === 'running') {
+        fn(ctx);
+      } else {
+        ctx.resume().then(() => {
+          if (ctx.state === 'running') fn(ctx);
+          else {
+            const fresh = createFreshAudioCtx();
+            if (fresh) fresh.resume().then(() => fn(fresh)).catch(() => {});
+          }
+        }).catch(() => {
+          const fresh = createFreshAudioCtx();
+          if (fresh) fresh.resume().then(() => fn(fresh)).catch(() => {});
+        });
+      }
+    }
+
+    function playMechanicalThock(pitch = 160, vol = 0.09) {
+      runWithAudio((ctx) => {
+        const now = ctx.currentTime + 0.002;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(pitch, now); osc.frequency.exponentialRampToValueAtTime(55, now + 0.045);
+        g.gain.setValueAtTime(vol, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+        osc.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.055);
+        if (noiseBuffer) {
+          const src = ctx.createBufferSource(); src.buffer = noiseBuffer;
+          const filt = ctx.createBiquadFilter(); filt.type = 'bandpass'; filt.frequency.value = 2600;
+          const ng = ctx.createGain(); ng.gain.setValueAtTime(vol * 0.65, now); ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
+          src.connect(filt); filt.connect(ng); ng.connect(ctx.destination); src.start(now);
+        }
+      });
+    }
+
+    function playTone(freq, duration = 0.14, type = 'triangle', gainPeak = 0.12, delay = 0, slideTo = null) {
+      runWithAudio((ctx) => {
+        const now = ctx.currentTime + 0.002 + delay;
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+        gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(gainPeak, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gain); gain.connect(ctx.destination); osc.start(now); osc.stop(now + duration + 0.02);
+      });
     }
 
     const SFX = {
@@ -2935,7 +3156,51 @@
     // =========================================================================
     // 10B. CHAPTER TILE CUSTOMIZER + GOOGLE DRIVE OAUTH AUTO-SYNC ENGINE
     // =========================================================================
+    function applyTilePreset(presetId) {
+      const preset = TILE_PRESETS.find(p => p.id === presetId);
+      if (!preset) return;
+      state.tileConfig = {
+        activePreset: preset.id,
+        coreTiles: preset.tiles.map(t => ({ ...t })),
+        showRev: preset.showRev !== false,
+        revLabel: preset.revLabel || 'Rev',
+        revXp: preset.revXp || 40
+      };
+      SFX.check(3);
+      saveState();
+      renderAll(false);
+      showToast(`${preset.name} Applied`, preset.desc, 'success', 'layers');
+    }
+
     function renderTilesEditor() {
+      const presetsGrid = document.getElementById('tile-presets-grid');
+      const activePresetId = (state.tileConfig && state.tileConfig.activePreset) || 'aakash';
+      const activePresetObj = TILE_PRESETS.find(p => p.id === activePresetId);
+      const pill = document.getElementById('active-preset-pill');
+      if (pill) pill.textContent = activePresetObj ? activePresetObj.name : 'Custom';
+
+      if (presetsGrid) {
+        presetsGrid.innerHTML = TILE_PRESETS.map(p => {
+          const isAct = activePresetId === p.id;
+          return `
+            <button data-apply-preset="${p.id}" class="preset-card-btn spring-btn text-left p-2.5 rounded-xl border transition ${
+              isAct
+                ? 'accent-border accent-soft-bg text-zinc-900 dark:text-white shadow-sm'
+                : 'bg-zinc-50 hover:bg-zinc-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.07] border-zinc-200 dark:border-white/[0.07] text-zinc-700 dark:text-zinc-300'
+            }">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[11px] font-extrabold truncate">${escapeHtml(p.name)}</span>
+                ${isAct ? '<i data-lucide="check-circle-2" class="w-3.5 h-3.5 accent-text shrink-0"></i>' : ''}
+              </div>
+              <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">${escapeHtml(p.desc)}</div>
+            </button>
+          `;
+        }).join('');
+        presetsGrid.querySelectorAll('.preset-card-btn').forEach(btn => {
+          btn.addEventListener('click', () => applyTilePreset(btn.dataset.applyPreset));
+        });
+      }
+
       const listEl = document.getElementById('tiles-editor-list');
       if (!listEl) return;
       const tiles = getAllConfiguredTiles();
@@ -3220,7 +3485,7 @@
         const xp = Number(document.getElementById('select-new-tile-xp').value) || 25;
         const icon = document.getElementById('select-new-tile-icon').value || 'sparkles';
         const id = 'custom_' + Date.now();
-        state.tileConfig.coreTiles.push({ id, label, fullLabel: label, xp, icon, group, enabled: true, builtIn: false });
+        state.tileConfig.activePreset = 'custom'; state.tileConfig.coreTiles.push({ id, label, fullLabel: label, xp, icon, group, enabled: true, builtIn: false });
         document.getElementById('input-new-tile-label').value = '';
         SFX.check(3); saveState(); renderAll(false);
         showToast('Custom Tile Added', `"${label}" (+${xp} XP) added to every chapter.`, 'success', 'plus');
@@ -3256,8 +3521,8 @@
       document.getElementById('btn-copy-origin').addEventListener('click', async () => {
         SFX.check(2);
         try {
-          if (navigator.clipboard) await navigator.clipboard.writeText('https://alokg741.github.io');
-          showToast('Origin Copied', 'Copied https://alokg741.github.io to clipboard.', 'success', 'copy');
+          if (navigator.clipboard) const orig = window.location.origin; await navigator.clipboard.writeText(orig);
+          showToast('Origin Copied', `Copied ${orig} to clipboard.`, 'success', 'copy');
         } catch (e) {}
       });
 
