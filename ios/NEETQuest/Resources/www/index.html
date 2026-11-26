@@ -12,16 +12,44 @@
   <meta name="apple-mobile-web-app-title" content="NEET Quest" />
   <meta name="theme-color" content="#06060a" />
   <link id="apple-touch-icon-link" rel="apple-touch-icon" href="./assets/rank_emblem.jpg" />
-  <link id="pwa-manifest-link" rel="manifest" href="./manifest.json" />
+  <link id="pwa-manifest-link" rel="manifest" href="" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17" async></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- FLOATING LIVE ACTIVITY PILL (Active during Focus Sprint) -->
+  <div id="live-activity-pill" class="hidden fixed bottom-4 left-4 z-50 modal-enter rounded-full bg-[#0e0e16]/95 backdrop-blur-xl border accent-border shadow-2xl px-3.5 py-2 flex items-center gap-3">
+    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+    <div class="leading-tight">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Live Sprint</div>
+      <div id="live-pill-timer" class="text-xs font-black font-mono tabular-nums text-white">10:00</div>
+    </div>
+    <button id="btn-live-pill-open" class="spring-btn px-2 py-1 rounded-lg text-[10px] font-bold accent-soft-bg accent-text">Open</button>
+  </div>
+
+  <!-- FULL-SCREEN ALARM RINGING OVERLAY -->
+  <div id="modal-alarm-ring" class="hidden fixed inset-0 z-[60] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="modal-enter w-full max-w-sm bento-card rounded-3xl bg-[#101018] border-2 border-amber-400/70 p-7 text-center shadow-2xl space-y-5">
+      <div class="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400 mx-auto flex items-center justify-center animate-bounce">
+        <i data-lucide="alarm-clock" class="w-10 h-10 text-amber-400"></i>
+      </div>
+      <div class="space-y-1">
+        <div class="text-[11px] font-black uppercase tracking-widest text-amber-400">Study Alarm</div>
+        <h3 id="alarm-ring-title" class="text-xl font-black text-white">Time to Study!</h3>
+        <p id="alarm-ring-body" class="text-xs text-zinc-300">Complete one quick micro-step to keep your streak alive.</p>
+      </div>
+      <div class="flex gap-2.5">
+        <button id="btn-alarm-snooze" class="spring-btn flex-1 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white">Snooze 5m</button>
+        <button id="btn-alarm-dismiss" class="keycap keycap-orange flex-1 py-3 rounded-xl font-extrabold text-xs">Dismiss & Study</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     if (typeof tailwind !== 'undefined') {
       tailwind.config = {
@@ -692,6 +720,13 @@
               <option value="180">In 3 hours</option>
             </select>
             <input id="reminder-note-input" type="text" placeholder="e.g. Finish Section B" class="px-3 py-2 rounded-xl bg-zinc-50 dark:bg-[#14141d] border border-zinc-200 dark:border-white/10 text-xs" />
+          </div>
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/[0.07]">
+            <div class="flex items-center gap-2">
+              <i data-lucide="alarm-clock" class="w-4 h-4 text-amber-400"></i>
+              <span class="text-xs font-bold">Ring as Urgent Alarm</span>
+            </div>
+            <input id="toggle-reminder-alarm" type="checkbox" class="w-4 h-4" />
           </div>
           <button id="btn-add-reminder" class="keycap keycap-accent w-full py-2.5 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
@@ -1509,13 +1544,22 @@
           icons: [{ src: DEFAULT_AVATAR, sizes: '320x320', type: 'image/jpeg' }]
         };
         const link = document.getElementById('pwa-manifest-link');
-        if (link && !link.getAttribute('href')) link.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+        if (link) link.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
       } catch (e) {}
 
       // Safe Service Worker registration for iOS 16.4+ PWA Notification support
       try {
         if ('serviceWorker' in navigator && window.isSecureContext) {
-          navigator.serviceWorker.register('./sw.js').then(reg => { swRegistration = reg; }).catch(() => {});
+          const swCode = `
+            self.addEventListener('install', () => self.skipWaiting());
+            self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+            self.addEventListener('notificationclick', e => {
+              e.notification.close();
+              e.waitUntil(self.clients.matchAll({ type: 'window' }).then(list => list[0] ? list[0].focus() : null));
+            });
+          `;
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          navigator.serviceWorker.register(URL.createObjectURL(blob)).then(reg => { swRegistration = reg; }).catch(() => {});
         }
       } catch (e) {}
     }
@@ -2417,7 +2461,7 @@
     function sendPushOrToast(title, body) {
       try {
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.notify) {
-          window.webkit.messageHandlers.notify.postMessage({ title: String(title), body: String(body), delaySec: 1 });
+          window.webkit.messageHandlers.notify.postMessage({ title: String(title), body: String(body), delaySec: 1, isAlarm: false });
         }
       } catch (e) {}
       SFX.revise();
@@ -2451,7 +2495,8 @@
       let changed = false;
       state.reminders = state.reminders.filter(r => {
         if (r.triggerAt <= now) {
-          sendPushOrToast(`Study Reminder: ${r.chapTitle}`, r.note || 'Time to complete your next micro-step and earn XP.');
+          if (r.isAlarm) { startAlarmRing(`Alarm: ${r.chapTitle}`, r.note || 'Time to tackle your chapter!'); }
+          sendPushOrToast(`${r.isAlarm ? 'Alarm' : 'Study Reminder'}: ${r.chapTitle}`, r.note || 'Time to complete your next micro-step and earn XP.');
           changed = true;
           return false;
         }
@@ -2472,6 +2517,58 @@
     let sprintDurationSec = 10 * 60, sprintRemainingSec = 10 * 60, sprintRunning = false, sprintInterval = null;
     function formatMMSS(sec) { return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`; }
 
+    // =========================================================================
+    // 9B. ALARM ENGINE + iOS LIVE ACTIVITIES BRIDGE
+    // =========================================================================
+    let alarmRingInterval = null;
+    let activeAlarmData = null;
+
+    function startAlarmRing(title, body) {
+      activeAlarmData = { title, body };
+      document.getElementById('alarm-ring-title').textContent = title || 'Study Alarm';
+      document.getElementById('alarm-ring-body').textContent = body || 'Time for your scheduled NEET Quest session.';
+      document.getElementById('modal-alarm-ring').classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+
+      const chime = () => {
+        triggerHaptic('heavy');
+        [880, 1046.5, 1318.5].forEach((f, i) => playTone(f, 0.22, 'triangle', 0.16, i * 0.08));
+      };
+      chime();
+      if (alarmRingInterval) clearInterval(alarmRingInterval);
+      alarmRingInterval = setInterval(chime, 2200);
+    }
+
+    function stopAlarmRing() {
+      if (alarmRingInterval) { clearInterval(alarmRingInterval); alarmRingInterval = null; }
+      document.getElementById('modal-alarm-ring').classList.add('hidden');
+      activeAlarmData = null;
+    }
+
+    function syncLiveActivity(action, remainingSec) {
+      const pill = document.getElementById('live-activity-pill');
+      const pillTimer = document.getElementById('live-pill-timer');
+      if (pill && pillTimer) {
+        if (action === 'end') {
+          pill.classList.add('hidden');
+        } else {
+          pill.classList.remove('hidden');
+          pillTimer.textContent = formatMMSS(remainingSec);
+        }
+      }
+      try {
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.liveActivity) {
+          const trackName = SYLLABUS[state.activeTrack] ? SYLLABUS[state.activeTrack].name : 'NEET Quest';
+          window.webkit.messageHandlers.liveActivity.postMessage({
+            action,
+            title: `${trackName} Focus Sprint`,
+            remainingSec: Math.max(0, Math.round(remainingSec)),
+            endTimestamp: Date.now() + Math.max(0, remainingSec) * 1000
+          });
+        }
+      } catch (e) {}
+    }
+
     function updateSprintUI() {
       document.getElementById('sprint-display').textContent = formatMMSS(sprintRemainingSec);
       document.getElementById('sprint-header-label').textContent = sprintRunning ? formatMMSS(sprintRemainingSec) : 'Sprint';
@@ -2483,15 +2580,15 @@
     }
 
     function toggleSprint() {
-      if (sprintRunning) { clearInterval(sprintInterval); sprintInterval = null; sprintRunning = false; SFX.uncheck(); }
+      if (sprintRunning) { clearInterval(sprintInterval); sprintInterval = null; sprintRunning = false; SFX.uncheck(); syncLiveActivity('pause', sprintRemainingSec); }
       else {
         if (sprintRemainingSec <= 0) sprintRemainingSec = sprintDurationSec;
-        sprintRunning = true; SFX.check(3);
+        sprintRunning = true; SFX.check(3); syncLiveActivity('start', sprintRemainingSec);
         sprintInterval = setInterval(() => {
           sprintRemainingSec -= 1;
           if (sprintRemainingSec <= 0) {
             clearInterval(sprintInterval); sprintInterval = null; sprintRunning = false; sprintRemainingSec = 0;
-            updateSprintUI(); applyXPDelta(50, null, ' SPRINT', true);
+            updateSprintUI(); syncLiveActivity('end', 0); applyXPDelta(50, null, ' SPRINT', true);
             sendPushOrToast('Focus Sprint Complete (+50 XP)', 'Great session. Log what you just studied to keep your streak alive.');
             fireConfetti('chapter', 0.5, 0.5);
             saveState(); renderHeroHUD(); return;
@@ -3610,6 +3707,17 @@
       });
       document.getElementById('btn-reminders').addEventListener('click', () => { SFX.modal(true); document.getElementById('drawer-reminders').classList.remove('hidden'); updateNotifStatusUI(); renderReminders(); });
       document.getElementById('btn-sprint').addEventListener('click', () => { SFX.modal(true); document.getElementById('modal-sprint').classList.remove('hidden'); updateSprintUI(); });
+      document.getElementById('btn-live-pill-open').addEventListener('click', () => { SFX.modal(true); document.getElementById('modal-sprint').classList.remove('hidden'); updateSprintUI(); });
+      document.getElementById('btn-alarm-dismiss').addEventListener('click', () => { SFX.check(3); stopAlarmRing(); });
+      document.getElementById('btn-alarm-snooze').addEventListener('click', () => {
+        SFX.tab();
+        const t = activeAlarmData ? activeAlarmData.title : 'Study Alarm';
+        const b = activeAlarmData ? activeAlarmData.body : 'Snoozed 5 minutes';
+        stopAlarmRing();
+        state.reminders.push({ id: 'rem_' + Date.now(), chapId: '', chapTitle: t.replace(/^Alarm:\s*/, ''), note: b, isAlarm: true, triggerAt: Date.now() + 5 * 60 * 1000 });
+        saveState(); renderReminders();
+        showToast('Alarm Snoozed', 'Ringing again in 5 minutes.', 'accent', 'alarm-clock');
+      });
       document.getElementById('btn-roulette').addEventListener('click', () => { SFX.modal(true); document.getElementById('modal-roulette').classList.remove('hidden'); spinRoulette(); });
 
       document.querySelectorAll('[data-close-modal]').forEach(btn => {
@@ -3643,7 +3751,7 @@
         });
       });
       document.getElementById('btn-sprint-toggle').addEventListener('click', toggleSprint);
-      document.getElementById('btn-sprint-reset').addEventListener('click', () => { SFX.uncheck(); if (sprintRunning) toggleSprint(); sprintRemainingSec = sprintDurationSec; updateSprintUI(); });
+      document.getElementById('btn-sprint-reset').addEventListener('click', () => { SFX.uncheck(); if (sprintRunning) toggleSprint(); sprintRemainingSec = sprintDurationSec; syncLiveActivity('end', 0); updateSprintUI(); });
 
       document.getElementById('btn-enable-notif').addEventListener('click', async () => {
         SFX.tab();
@@ -3673,13 +3781,15 @@
         const delayMin = Number(document.getElementById('reminder-delay-select').value) || 30;
         const note = document.getElementById('reminder-note-input').value.trim();
         const chap = CHAPTER_MAP[chapId]; if (!chap) return;
-        state.reminders.push({ id: 'rem_' + Date.now(), chapId, chapTitle: chap.title, note, triggerAt: Date.now() + delayMin * 60 * 1000 });
+        const isAlarm = !!(document.getElementById('toggle-reminder-alarm') && document.getElementById('toggle-reminder-alarm').checked);
+        state.reminders.push({ id: 'rem_' + Date.now(), chapId, chapTitle: chap.title, note, isAlarm, triggerAt: Date.now() + delayMin * 60 * 1000 });
         try {
           if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.notify) {
             window.webkit.messageHandlers.notify.postMessage({
-              title: 'Study Reminder: ' + chap.title,
+              title: (isAlarm ? 'Alarm: ' : 'Study Reminder: ') + chap.title,
               body: note || 'Time to complete your next micro-step and earn XP.',
-              delaySec: delayMin * 60
+              delaySec: delayMin * 60,
+              isAlarm: isAlarm
             });
           }
         } catch (e) {}

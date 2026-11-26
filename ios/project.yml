@@ -2,32 +2,58 @@ name: NEETQuest
 options:
   bundleIdPrefix: com.alokg741
   deploymentTarget:
-    iOS: "15.0"
+    iOS: "16.2"
 targets:
   NEETQuest:
     type: application
     platform: iOS
-    deploymentTarget: "15.0"
+    deploymentTarget: "16.2"
     sources:
       - path: NEETQuest
         excludes:
           - "Resources/**"
           - "Info.plist"
+      - path: NEETQuestShared
     resources:
       - path: NEETQuest/Assets.xcassets
       - path: NEETQuest/Resources/www
         type: folder
     info:
       path: NEETQuest/Info.plist
+    dependencies:
+      - target: NEETQuestWidget
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.alokg741.neetquest
         PRODUCT_NAME: NEETQuest
-        MARKETING_VERSION: 1.0.0
-        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0.1
+        CURRENT_PROJECT_VERSION: 2
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+
+  NEETQuestWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.2"
+    sources:
+      - path: NEETQuestWidget
+        excludes:
+          - "Info.plist"
+      - path: NEETQuestShared
+    info:
+      path: NEETQuestWidget/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.alokg741.neetquest.widget
+        PRODUCT_NAME: NEETQuestWidget
+        MARKETING_VERSION: 1.0.1
+        CURRENT_PROJECT_VERSION: 2
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_REQUIRED: NO
         CODE_SIGNING_ALLOWED: NO

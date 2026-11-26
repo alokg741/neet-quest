@@ -10,17 +10,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        // Ensure Web Audio chimes play reliably on iOS
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
             try session.setActive(true)
         } catch {}
 
-        // Request native iOS Local Notification permissions
-        let center = UNUserNotificationCenter.current()
-        center.delegate = self
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+        UNUserNotificationCenter.current().delegate = self
 
         let win = UIWindow(frame: UIScreen.main.bounds)
         win.backgroundColor = UIColor(red: 6/255, green: 6/255, blue: 10/255, alpha: 1)
