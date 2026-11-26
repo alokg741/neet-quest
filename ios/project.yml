@@ -1,0 +1,33 @@
+name: NEETQuest
+options:
+  bundleIdPrefix: com.alokg741
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  NEETQuest:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: NEETQuest
+        excludes:
+          - "Resources/**"
+          - "Info.plist"
+    resources:
+      - path: NEETQuest/Assets.xcassets
+      - path: NEETQuest/Resources/www
+        type: folder
+    info:
+      path: NEETQuest/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.alokg741.neetquest
+        PRODUCT_NAME: NEETQuest
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO

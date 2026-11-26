@@ -1,0 +1,65 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/build-ipa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Build unsigned Release .app (arm64 iOS)
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project NEETQuest.xcodeproj \
+            -scheme NEETQuest \
+            -configuration Release \
+            -sdk iphoneos \
+            -arch arm64 \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package NEETQuest.ipa
+        working-directory: ios
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/NEETQuest.app Payload/
+          zip -qry NEETQuest.ipa Payload
+          ls -lh NEETQuest.ipa
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEETQuest-IPA
+          path: ios/NEETQuest.ipa
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: NEET Quest iOS IPA (v1.0.0)
+          body: |
+            Unsigned iOS `.ipa` for **NEET Quest** (sideload with AltStore, SideStore, or Sideloadly).
+            Includes offline bundled web app, native Taptic Engine haptics, and local iOS notifications.
+          files: ios/NEETQuest.ipa
