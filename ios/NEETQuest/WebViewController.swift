@@ -1,9 +1,6 @@
 import UIKit
 import WebKit
 import UserNotifications
-#if canImport(ActivityKit)
-import ActivityKit
-#endif
 
 class BundleSchemeHandler: NSObject, WKURLSchemeHandler {
     func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
@@ -72,7 +69,6 @@ class WebViewController: UIViewController, WKScriptMessageHandler, WKNavigationD
         let contentController = WKUserContentController()
         contentController.add(self, name: "haptic")
         contentController.add(self, name: "notify")
-        contentController.add(self, name: "liveActivity")
 
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
@@ -141,43 +137,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler, WKNavigationD
                     center.add(req, withCompletionHandler: nil)
                 }
             }
-        } else if message.name == "liveActivity", let dict = message.body as? [String: Any] {
-            handleLiveActivity(dict)
         }
-    }
-
-    private func handleLiveActivity(_ dict: [String: Any]) {
-        #if canImport(ActivityKit)
-        if #available(iOS 16.1, *) {
-            guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
-            let action = dict["action"] as? String ?? "end"
-            let title = dict["title"] as? String ?? "NEET Quest Sprint"
-            let rem = dict["remainingSec"] as? Int ?? 600
-            let endMs = dict["endTimestamp"] as? Double ?? (Date().timeIntervalSince1970 * 1000 + Double(rem * 1000))
-            let endDate = Date(timeIntervalSince1970: endMs / 1000.0)
-
-            Task {
-                if action == "end" {
-                    for act in Activity<NEETQuestAttributes>.activities {
-                        await act.end(dismissalPolicy: .immediate)
-                    }
-                    return
-                }
-                let state = NEETQuestAttributes.ContentState(
-                    title: title,
-                    endDate: endDate,
-                    isPaused: action == "pause",
-                    remainingSeconds: rem
-                )
-                if let existing = Activity<NEETQuestAttributes>.activities.first {
-                    await existing.update(using: state)
-                } else if action == "start" {
-                    let attrs = NEETQuestAttributes(xpReward: 50)
-                    _ = try? Activity.request(attributes: attrs, contentState: state, pushType: nil)
-                }
-            }
-        }
-        #endif
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
