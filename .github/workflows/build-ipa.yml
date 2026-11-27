@@ -40,6 +40,15 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build
 
+      - name: Verify www/index.html is bundled inside .app
+        working-directory: ios
+        run: |
+          APP_DIR="build/Build/Products/Release-iphoneos/NEETQuest.app"
+          ls -la "$APP_DIR"
+          test -f "$APP_DIR/www/index.html" || (echo "ERROR: www/index.html missing from .app!" && exit 1)
+          test -f "$APP_DIR/www/assets/rank_emblem.jpg" || (echo "ERROR: www/assets missing!" && exit 1)
+          echo "VERIFIED: www/index.html and assets are inside NEETQuest.app!"
+
       - name: Package NEETQuest.ipa
         working-directory: ios
         run: |
@@ -57,9 +66,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.3
-          name: NEET Quest iOS IPA (v1.0.3)
+          tag_name: v1.0.4
+          name: NEET Quest iOS IPA (v1.0.4)
           body: |
-            Unsigned iOS `.ipa` for **NEET Quest** (sideload with AltStore, SideStore, or Sideloadly).
-            Includes offline bundled web app, native Taptic Engine haptics, and local iOS notifications.
+            Unsigned iOS `.ipa` for **NEET Quest** (`v1.0.4`, verified `www/index.html` bundled).
           files: ios/NEETQuest.ipa
