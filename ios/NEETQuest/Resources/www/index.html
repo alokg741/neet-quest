@@ -17,51 +17,26 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com/3.4.17" async></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <!-- FLOATING LIVE ACTIVITY PILL (Active during Focus Sprint) -->
-  <div id="live-activity-pill" class="hidden fixed bottom-4 left-4 z-50 modal-enter rounded-full bg-[#0e0e16]/95 backdrop-blur-xl border accent-border shadow-2xl px-3.5 py-2 flex items-center gap-3">
-    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-    <div class="leading-tight">
-      <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Live Sprint</div>
-      <div id="live-pill-timer" class="text-xs font-black font-mono tabular-nums text-white">10:00</div>
-    </div>
-    <button id="btn-live-pill-open" class="spring-btn px-2 py-1 rounded-lg text-[10px] font-bold accent-soft-bg accent-text">Open</button>
-  </div>
-
-  <!-- FULL-SCREEN ALARM RINGING OVERLAY -->
-  <div id="modal-alarm-ring" class="hidden fixed inset-0 z-[60] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="modal-enter w-full max-w-sm bento-card rounded-3xl bg-[#101018] border-2 border-amber-400/70 p-7 text-center shadow-2xl space-y-5">
-      <div class="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400 mx-auto flex items-center justify-center animate-bounce">
-        <i data-lucide="alarm-clock" class="w-10 h-10 text-amber-400"></i>
-      </div>
-      <div class="space-y-1">
-        <div class="text-[11px] font-black uppercase tracking-widest text-amber-400">Study Alarm</div>
-        <h3 id="alarm-ring-title" class="text-xl font-black text-white">Time to Study!</h3>
-        <p id="alarm-ring-body" class="text-xs text-zinc-300">Complete one quick micro-step to keep your streak alive.</p>
-      </div>
-      <div class="flex gap-2.5">
-        <button id="btn-alarm-snooze" class="spring-btn flex-1 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white">Snooze 5m</button>
-        <button id="btn-alarm-dismiss" class="keycap keycap-orange flex-1 py-3 rounded-xl font-extrabold text-xs">Dismiss & Study</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    if (typeof tailwind !== 'undefined') {
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['var(--app-font, "Inter")', 'system-ui', 'sans-serif'],
-            }
+    // Configure Tailwind BEFORE or immediately after load
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['var(--app-font, "Inter")', 'system-ui', 'sans-serif'],
           }
         }
-      };
+      }
+    };
+    if (typeof tailwind !== 'undefined' && tailwind.config !== window.tailwind.config) {
+      tailwind.config = window.tailwind.config;
     }
   </script>
   <style>
@@ -1116,6 +1091,34 @@
       </div>
       <p class="text-xs text-zinc-500 dark:text-zinc-400">Earned through verified syllabus mastery. Keep the streak alive.</p>
       <button data-close-modal="modal-levelup" class="keycap keycap-accent w-full py-2.5 rounded-xl font-extrabold text-xs">Continue Quest</button>
+    </div>
+  </div>
+
+  <!-- FLOATING LIVE ACTIVITY PILL (Active during Focus Sprint) -->
+  <div id="live-activity-pill" class="hidden fixed bottom-4 left-4 z-50 modal-enter rounded-full bg-[#0e0e16]/95 backdrop-blur-xl border accent-border shadow-2xl px-3.5 py-2 flex items-center gap-3">
+    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+    <div class="leading-tight">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Live Sprint</div>
+      <div id="live-pill-timer" class="text-xs font-black font-mono tabular-nums text-white">10:00</div>
+    </div>
+    <button id="btn-live-pill-open" class="spring-btn px-2 py-1 rounded-lg text-[10px] font-bold accent-soft-bg accent-text">Open</button>
+  </div>
+
+  <!-- FULL-SCREEN ALARM RINGING OVERLAY -->
+  <div id="modal-alarm-ring" class="hidden fixed inset-0 z-[60] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="modal-enter w-full max-w-sm bento-card rounded-3xl bg-[#101018] border-2 border-amber-400/70 p-7 text-center shadow-2xl space-y-5">
+      <div class="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400 mx-auto flex items-center justify-center animate-bounce">
+        <i data-lucide="alarm-clock" class="w-10 h-10 text-amber-400"></i>
+      </div>
+      <div class="space-y-1">
+        <div class="text-[11px] font-black uppercase tracking-widest text-amber-400">Study Alarm</div>
+        <h3 id="alarm-ring-title" class="text-xl font-black text-white">Time to Study!</h3>
+        <p id="alarm-ring-body" class="text-xs text-zinc-300">Complete one quick micro-step to keep your streak alive.</p>
+      </div>
+      <div class="flex gap-2.5">
+        <button id="btn-alarm-snooze" class="spring-btn flex-1 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white">Snooze 5m</button>
+        <button id="btn-alarm-dismiss" class="keycap keycap-orange flex-1 py-3 rounded-xl font-extrabold text-xs">Dismiss & Study</button>
+      </div>
     </div>
   </div>
 

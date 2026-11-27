@@ -57,8 +57,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2
-          name: NEET Quest iOS IPA (v1.0.2)
+          tag_name: v1.0.3
+          name: NEET Quest iOS IPA (v1.0.3)
           body: |
             Unsigned iOS `.ipa` for **NEET Quest** (sideload with AltStore, SideStore, or Sideloadly).
             Includes offline bundled web app, native Taptic Engine haptics, and local iOS notifications.

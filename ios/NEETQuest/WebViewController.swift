@@ -3,6 +3,30 @@ import WebKit
 import UserNotifications
 
 class BundleSchemeHandler: NSObject, WKURLSchemeHandler {
+    private func resolveBundleFile(_ relPath: String) -> URL? {
+        let fm = FileManager.default
+        var candidates: [URL] = []
+        if let res = Bundle.main.resourceURL {
+            candidates.append(res.appendingPathComponent("www").appendingPathComponent(relPath))
+            candidates.append(res.appendingPathComponent(relPath))
+        }
+        if let www = Bundle.main.url(forResource: "www", withExtension: nil) {
+            candidates.append(www.appendingPathComponent(relPath))
+        }
+        let filename = (relPath as NSString).lastPathComponent
+        let name = (filename as NSString).deletingPathExtension
+        let ext = (filename as NSString).pathExtension
+        if let direct = Bundle.main.url(forResource: name, withExtension: ext.isEmpty ? nil : ext) {
+            candidates.append(direct)
+        }
+        for c in candidates {
+            if fm.fileExists(atPath: c.path) {
+                return c
+            }
+        }
+        return nil
+    }
+
     func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
         guard let url = urlSchemeTask.request.url else {
             urlSchemeTask.didFailWithError(NSError(domain: "NEETQuest", code: 404))
@@ -12,12 +36,9 @@ class BundleSchemeHandler: NSObject, WKURLSchemeHandler {
         if relPath.isEmpty || relPath == "/" { relPath = "/index.html" }
         if relPath.hasPrefix("/") { relPath.removeFirst() }
 
-        let base = Bundle.main.url(forResource: "www", withExtension: nil)
-            ?? Bundle.main.resourceURL?.appendingPathComponent("www")
-
-        guard let fileURL = base?.appendingPathComponent(relPath),
+        guard let fileURL = resolveBundleFile(relPath),
               let data = try? Data(contentsOf: fileURL) else {
-            urlSchemeTask.didFailWithError(NSError(domain: "NEETQuest", code: 404))
+            urlSchemeTask.didFailWithError(NSError(domain: "NEETQuest", code: 404, userInfo: [NSLocalizedDescriptionKey: "Missing bundled file: \(relPath)"]))
             return
         }
 
